@@ -13,5 +13,5 @@ variable "main_project_path" {
 variable "project_name" {
   description = "Name of the project (used for tagging and naming resources)"
   type        = string
-  default     = "cloudpollpro"
+  default     = "cloudpollpro-bootstrap"
 }

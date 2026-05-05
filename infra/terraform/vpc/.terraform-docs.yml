@@ -1,0 +1,99 @@
+formatter: "markdown table"
+
+version: ""
+
+header-from: main.tf
+footer-from: ""
+
+recursive:
+  enabled: false
+
+sections:
+  hide: []
+  show:
+    - header
+    - requirements
+    - providers
+    - modules
+    - resources
+    - inputs
+    - outputs
+
+content: |-
+  {{ .Header }}
+
+  ## Features
+
+  - Multi-AZ VPC with public and private subnets
+  - EKS-ready with automatic subnet tagging
+  - NAT Gateway for private subnet internet access
+  - Configurable CIDR ranges and availability zones
+  - Pass-through support for additional custom tags
+
+  ## Usage
+
+  ```hcl
+  module "vpc" {
+    source = "./vpc"
+
+    project_name = "cloudpollpro"
+    region       = "eu-west-3"
+
+    # Optional: customize CIDR ranges
+    vpc_cidr        = "10.0.0.0/16"
+    private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+    public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+    # Optional: add custom tags
+    extra_public_subnet_tags = {
+      "Environment" = "production"
+    }
+
+    tags = {
+      CostCenter = "engineering"
+    }
+  }
+  ```
+
+  {{ .Requirements }}
+
+  {{ .Providers }}
+
+  {{ .Modules }}
+
+  {{ .Resources }}
+
+  {{ .Inputs }}
+
+  {{ .Outputs }}
+
+output:
+  file: "README.md"
+  mode: inject
+  template: |-
+    <!-- BEGIN_TF_DOCS -->
+    {{ .Content }}
+    <!-- END_TF_DOCS -->
+
+output-values:
+  enabled: false
+  from: ""
+
+sort:
+  enabled: true
+  by: name
+
+settings:
+  anchor: true
+  color: true
+  default: true
+  description: false
+  escape: true
+  hide-empty: false
+  html: true
+  indent: 2
+  lockfile: true
+  read-comments: true
+  required: true
+  sensitive: true
+  type: true

@@ -65,28 +65,6 @@ resource "aws_iam_role_policy" "s3_policy" {
   })
 }
 
-# DynamoDB - Terraform state locking
-resource "aws_iam_role_policy" "dynamodb_policy" {
-  name = "DynamoDBStateLocking"
-  role = aws_iam_role.project_role.name
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "DynamoDBStateLocking"
-        Effect = "Allow"
-        Action = [
-          "dynamodb:DescribeTable",
-          "dynamodb:GetItem",
-          "dynamodb:PutItem",
-          "dynamodb:DeleteItem"
-        ]
-        Resource = "arn:aws:dynamodb:*:*:table/${var.project_name}-*"
-      }
-    ]
-  })
-}
 
 # ECR - Container registry management
 resource "aws_iam_role_policy_attachment" "ecr_full_access" {
