@@ -13,14 +13,14 @@ cd "$(git rev-parse --show-toplevel)"
 # Format Terraform files
 echo "📝 Formatting Terraform files..."
 terraform -chdir=infra/tf-bootstrap fmt -recursive
-terraform -chdir=infra/terraform fmt -recursive
+terraform -chdir=infra/tf-main fmt -recursive
 
 # Generate module documentation if terraform-docs is installed
 if command -v terraform-docs &> /dev/null; then
   echo "📚 Generating module documentation..."
   
   # Find all modules with .terraform-docs.yml and generate docs
-  find infra/terraform -type f -name ".terraform-docs.yml" | while read -r config_file; do
+  find infra/tf-main -type f -name ".terraform-docs.yml" | while read -r config_file; do
     module_dir=$(dirname "$config_file")
     module_name=$(basename "$module_dir")
     terraform-docs "$module_dir"
@@ -32,9 +32,9 @@ else
 fi
 
 # Validate Terraform if initialized
-if [ -d "infra/terraform/.terraform" ]; then
+if [ -d "infra/tf-main/.terraform" ]; then
   echo "✅ Validating Terraform configuration..."
-  terraform -chdir=infra/terraform validate
+  terraform -chdir=infra/tf-main validate
 fi
 
 echo "✨ All checks passed!"
