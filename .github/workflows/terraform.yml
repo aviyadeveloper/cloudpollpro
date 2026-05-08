@@ -6,6 +6,7 @@ on:
     paths:
       - "infra/**/*.tf"
       - "infra/**/*.tfvars"
+      - ".github/workflows/terraform.yml"
 
 permissions:
   contents: write
