@@ -52,12 +52,19 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
 
+      - name: Create required directories
+        run: mkdir -p infra/tf-main/.keys docs/architecture
+
       - name: Generate diagrams
         uses: patrickchugh/terravision-action@v2
         with:
           source: ./infra/tf-main
           outfile: docs/architecture/diagram
           format: both
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+          AWS_DEFAULT_REGION: us-east-1
 
       - name: Check for changes
         id: check_changes
