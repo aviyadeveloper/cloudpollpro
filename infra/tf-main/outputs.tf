@@ -15,6 +15,18 @@ output "vpc_private_subnets" {
 }
 
 
+# ECR Outputs
+output "ecr_repository_urls" {
+  description = "Map of ECR repository names to their URLs"
+  value       = module.ecr.repository_urls
+}
+
+output "ecr_registry_id" {
+  description = "The registry ID where the repositories were created"
+  value       = module.ecr.registry_id
+}
+
+
 # Bastion Outputs
 output "bastion_ssh_command" {
   description = "Ready-to-use SSH command to connect to bastion (just copy and paste!)"

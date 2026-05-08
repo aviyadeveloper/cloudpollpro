@@ -14,6 +14,18 @@ module "vpc" {
   }
 }
 
+module "ecr" {
+  source = "./ecr"
+
+  project_name = var.project_name
+  region       = var.region
+  repositories = ["voting-frontend", "results-frontend", "worker"]
+  tags = {
+    Project   = var.project_name
+    ManagedBy = "terraform"
+  }
+}
+
 module "bastion" {
   source = "./bastion"
 
