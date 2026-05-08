@@ -44,7 +44,7 @@ terraform {
 
 provider "aws" {
   region = "${var.aws_region}"
-  
+
   assume_role {
     role_arn     = "${aws_iam_role.project_role.arn}"
     external_id  = "${var.project_name}"
