@@ -9,9 +9,8 @@ on:
       - ".github/workflows/terraform.yml"
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
-  id-token: write # Required for OIDC
 
 jobs:
   terraform-checks:
@@ -20,6 +19,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: hashicorp/setup-terraform@v3
 
@@ -39,76 +40,3 @@ jobs:
         run: |
           terraform -chdir=infra/tf-main init -backend=false
           terraform -chdir=infra/tf-main validate
-
-  generate-diagrams:
-    name: Update Diagrams
-    runs-on: ubuntu-latest
-    needs: terraform-checks
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: hashicorp/setup-terraform@v3
-
-      - name: Check AWS Configuration
-        run: |
-          if [ -z "${{ vars.AWS_ROLE_ARN }}" ]; then
-            echo "❌ AWS_ROLE_ARN variable not set"
-            echo "To enable diagrams, configure OIDC:"
-            echo "1. Apply tf-bootstrap with -var=\"github_repo_owner=YOUR_USERNAME\" -var=\"github_repo_name=cloudpollpro\""
-            echo "2. Run: terraform output github_actions_role_arn"
-            echo "3. Add the ARN as repository variable AWS_ROLE_ARN in GitHub Settings"
-            exit 1
-          fi
-          echo "✅ AWS_ROLE_ARN configured: ${{ vars.AWS_ROLE_ARN }}"
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: us-east-1
-
-      - name: Create required directories
-        run: mkdir -p infra/tf-main/.keys docs/architecture
-
-      - name: Generate diagrams
-        uses: patrickchugh/terravision-action@v2
-        with:
-          source: ./infra/tf-main
-          outfile: docs/architecture/diagram
-          format: both
-
-      - name: Check for changes
-        id: check_changes
-        run: |
-          git diff --quiet docs/ || echo "has_changes=true" >> $GITHUB_OUTPUT
-
-      - name: Commit diagrams to PR
-        if: steps.check_changes.outputs.has_changes == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add docs/
-          git commit -m "docs: update architecture diagrams [skip ci]"
-          git push
-
-      - name: Comment on PR
-        if: steps.check_changes.outputs.has_changes == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '📊 Architecture diagrams updated! Check the `docs/architecture/` folder in this PR.'
-            })
-
-      - name: Upload diagrams as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: architecture-diagrams
-          path: docs/architecture/
