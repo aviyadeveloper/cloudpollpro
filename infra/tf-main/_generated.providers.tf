@@ -14,7 +14,7 @@ terraform {
 
 provider "aws" {
   region = "eu-west-3"
-  
+
   assume_role {
     role_arn     = "arn:aws:iam::058264398399:role/projects/cloudpollpro-bootstrap-terraform-role"
     external_id  = "cloudpollpro-bootstrap"
