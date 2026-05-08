@@ -11,6 +11,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  id-token: write # Required for OIDC
 
 jobs:
   terraform-checks:
@@ -52,6 +53,24 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
 
+      - name: Check AWS Configuration
+        run: |
+          if [ -z "${{ vars.AWS_ROLE_ARN }}" ]; then
+            echo "❌ AWS_ROLE_ARN variable not set"
+            echo "To enable diagrams, configure OIDC:"
+            echo "1. Apply tf-bootstrap with -var=\"github_repo_owner=YOUR_USERNAME\" -var=\"github_repo_name=cloudpollpro\""
+            echo "2. Run: terraform output github_actions_role_arn"
+            echo "3. Add the ARN as repository variable AWS_ROLE_ARN in GitHub Settings"
+            exit 1
+          fi
+          echo "✅ AWS_ROLE_ARN configured: ${{ vars.AWS_ROLE_ARN }}"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
       - name: Create required directories
         run: mkdir -p infra/tf-main/.keys docs/architecture
 
@@ -61,10 +80,6 @@ jobs:
           source: ./infra/tf-main
           outfile: docs/architecture/diagram
           format: both
-        env:
-          AWS_ACCESS_KEY_ID: dummy
-          AWS_SECRET_ACCESS_KEY: dummy
-          AWS_DEFAULT_REGION: us-east-1
 
       - name: Check for changes
         id: check_changes
