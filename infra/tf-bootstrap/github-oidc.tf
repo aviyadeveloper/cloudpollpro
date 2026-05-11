@@ -124,6 +124,14 @@ resource "aws_iam_role_policy" "github_actions_terraform_ro" {
         Resource = "*"
       },
       {
+        Sid    = "AllowSessionTagging"
+        Effect = "Allow"
+        Action = [
+          "sts:TagSession"
+        ]
+        Resource = "*"
+      },
+      {
         Sid    = "ECRGetAuthToken"
         Effect = "Allow"
         Action = [
@@ -144,7 +152,7 @@ resource "aws_iam_role_policy" "github_actions_terraform_ro" {
           "ecr:CompleteLayerUpload"
         ]
         Resource = [
-          "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/${var.project_name}-*"
+          "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/cloudpollpro-*"
         ]
       }
     ]

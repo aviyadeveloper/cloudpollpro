@@ -15,3 +15,8 @@ variable "enable_nat_gateway" {
   type        = bool
   default     = true
 }
+
+variable "github_actions_role_arn" {
+  description = "IAM role ARN for GitHub Actions to access EKS"
+  type        = string
+}

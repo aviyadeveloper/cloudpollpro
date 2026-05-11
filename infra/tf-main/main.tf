@@ -19,7 +19,7 @@ module "ecr" {
 
   project_name = var.project_name
   region       = var.region
-  repositories = ["voting-frontend", "results-frontend", "worker"]
+  repositories = ["vote", "result", "worker"]
   tags = {
     Project   = var.project_name
     ManagedBy = "terraform"
@@ -38,10 +38,11 @@ module "bastion" {
 module "eks" {
   source = "./eks"
 
-  project_name       = var.project_name
-  kubernetes_version = "1.31"
-  vpc_id             = module.vpc.vpc_id
-  private_subnet_ids = module.vpc.private_subnets
+  project_name            = var.project_name
+  kubernetes_version      = "1.31"
+  vpc_id                  = module.vpc.vpc_id
+  private_subnet_ids      = module.vpc.private_subnets
+  github_actions_role_arn = var.github_actions_role_arn
 }
 
 module "eks_addons" {

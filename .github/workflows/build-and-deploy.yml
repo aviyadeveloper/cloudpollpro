@@ -80,18 +80,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials (GitHub Actions role)
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Assume Terraform role for kubectl access
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_TERRAFORM_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-          role-chaining: true
 
       - name: Update kubeconfig
         run: |
@@ -114,7 +107,7 @@ jobs:
       - name: Deploy to EKS
         run: |
           echo "Applying Kubernetes manifests..."
-          kubectl apply -f k8s/apps/
+          kubectl apply -R -f k8s/apps/
 
       - name: Wait for rollouts
         run: |

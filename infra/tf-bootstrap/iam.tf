@@ -27,14 +27,6 @@ resource "aws_iam_role" "project_role" {
             "sts:ExternalId" = var.project_name
           }
         }
-      },
-      {
-        Sid    = "AllowGitHubActionsAssumeRole"
-        Effect = "Allow"
-        Principal = {
-          AWS = var.github_repo_owner != "" && var.github_repo_name != "" ? aws_iam_role.github_actions_role[0].arn : data.aws_caller_identity.current.arn
-        }
-        Action = "sts:AssumeRole"
       }
     ]
   })
