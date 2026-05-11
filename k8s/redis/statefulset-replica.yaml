@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-replica
+  namespace: default
+  labels:
+    app: redis
+    component: replica
+spec:
+  serviceName: redis-headless
+  replicas: 2
+  selector:
+    matchLabels:
+      app: redis
+      component: replica
+  template:
+    metadata:
+      labels:
+        app: redis
+        component: replica
+    spec:
+      containers:
+      - name: redis
+        image: redis:7.2-alpine
+        command:
+          - redis-server
+          - /etc/redis/redis.conf
+          - --replicaof
+          - redis-primary-0.redis-headless.default.svc.cluster.local
+          - "6379"
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - name: config
+          mountPath: /etc/redis
+        - name: redis-data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: config
+        configMap:
+          name: redis-config
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: ebs-gp3
+      resources:
+        requests:
+          storage: 5Gi

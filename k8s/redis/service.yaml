@@ -1,0 +1,60 @@
+---
+# Headless service for StatefulSet DNS
+# Provides stable network identity: redis-primary-0.redis-headless.default.svc.cluster.local
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-headless
+  namespace: default
+  labels:
+    app: redis
+spec:
+  clusterIP: None  # Headless service
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+  selector:
+    app: redis
+
+---
+# ClusterIP service for application access
+# Applications use this to connect: redis-primary.default.svc.cluster.local:6379
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-primary
+  namespace: default
+  labels:
+    app: redis
+    component: primary
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+  selector:
+    app: redis
+    component: primary
+
+---
+# ClusterIP service for read-only replica access
+# Applications use this for read operations: redis-replica.default.svc.cluster.local:6379
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-replica
+  namespace: default
+  labels:
+    app: redis
+    component: replica
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+  selector:
+    app: redis
+    component: replica

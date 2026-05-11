@@ -1,0 +1,99 @@
+formatter: "markdown table"
+
+version: ""
+
+header-from: main.tf
+footer-from: ""
+
+recursive:
+  enabled: false
+
+sections:
+  hide: []
+  show:
+    - header
+    - requirements
+    - providers
+    - modules
+    - resources
+    - inputs
+    - outputs
+
+content: |-
+  {{ .Header }}
+
+  ## Features
+
+  - **EBS CSI Driver**: AWS-managed EKS addon for EBS volume provisioning
+  - **External Secrets Operator**: IAM role for syncing AWS Secrets Manager to Kubernetes
+  - **IRSA Pattern**: IAM Roles for Service Accounts for secure, credential-free AWS API access
+  - All add-ons follow AWS best practices with least-privilege IAM policies
+
+  ## Components
+
+  ### EBS CSI Driver
+  - Enables dynamic provisioning of EBS volumes as Kubernetes PersistentVolumes
+  - Installed as EKS-managed addon (automatic updates available)
+  - Service account: `ebs-csi-controller-sa` in `kube-system` namespace
+  - IAM permissions: EC2 volume operations (create, attach, delete, snapshot)
+
+  ### External Secrets Operator
+  - IAM role for External Secrets Operator to read AWS Secrets Manager
+  - Service account: `external-secrets` in `external-secrets-system` namespace
+  - IAM permissions: `secretsmanager:GetSecretValue`, `secretsmanager:DescribeSecret`
+  - Scoped to secrets with prefix `cloudpollpro-*`
+
+  ## Usage
+
+  ```hcl
+  module "eks_addons" {
+    source = "./eks-addons"
+
+    project_name      = "cloudpollpro"
+    cluster_name      = module.eks.cluster_name
+    oidc_provider_arn = module.eks.oidc_provider_arn
+  }
+  ```
+
+  ## Verification
+
+  ```bash
+  # Check EBS CSI Driver
+  kubectl get pods -n kube-system | grep ebs-csi
+  kubectl get sa ebs-csi-controller-sa -n kube-system -o yaml | grep role-arn
+
+  # Check External Secrets role
+  kubectl get sa external-secrets -n external-secrets-system -o yaml | grep role-arn
+  ```
+
+  ## Requirements
+
+  {{ .Requirements }}
+
+  ## Providers
+
+  {{ .Providers }}
+
+  ## Modules
+
+  {{ .Modules }}
+
+  ## Resources
+
+  {{ .Resources }}
+
+  ## Inputs
+
+  {{ .Inputs }}
+
+  ## Outputs
+
+  {{ .Outputs }}
+
+output:
+  file: "README.md"
+  mode: inject
+  template: |-
+    <!-- BEGIN_TF_DOCS -->
+    {{ .Content }}
+    <!-- END_TF_DOCS -->

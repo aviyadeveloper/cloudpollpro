@@ -44,6 +44,16 @@ module "eks" {
   private_subnet_ids = module.vpc.private_subnets
 }
 
+module "eks_addons" {
+  source = "./eks-addons"
+
+  project_name                       = var.project_name
+  cluster_name                       = module.eks.cluster_name
+  cluster_endpoint                   = module.eks.cluster_endpoint
+  cluster_certificate_authority_data = module.eks.cluster_certificate_authority_data
+  oidc_provider_arn                  = module.eks.oidc_provider_arn
+}
+
 module "rds" {
   source = "./rds"
 
