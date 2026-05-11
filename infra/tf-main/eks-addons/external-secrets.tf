@@ -41,6 +41,14 @@ resource "aws_iam_policy" "external_secrets_policy" {
           "secretsmanager:DescribeSecret"
         ]
         Resource = "arn:aws:secretsmanager:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:secret:cloudpollpro-*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Resource = "arn:aws:secretsmanager:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:secret:rds!db-*"
       }
     ]
   })

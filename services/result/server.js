@@ -41,11 +41,18 @@ var pgUser = process.env.PG_USER || "postgres";
 var pgPassword = process.env.PG_PASSWORD || "postgres";
 var pgDatabase = process.env.PG_DATABASE || "postgres";
 
-var connectionString = `postgresql://${pgUser}:${pgPassword}@${pgHost}:${pgPort}/${pgDatabase}`;
-console.log(connectionString);
+// Use config object instead of connection string to avoid URL encoding issues with special characters
+var poolConfig = {
+  host: pgHost,
+  port: pgPort,
+  user: pgUser,
+  password: pgPassword,
+  database: pgDatabase,
+  ssl: { rejectUnauthorized: false },
+};
 
 var { Pool } = require("pg");
-var pool = new Pool({ connectionString: connectionString });
+var pool = new Pool(poolConfig);
 
 async.retry(
   { times: 1000, interval: 1000 },
