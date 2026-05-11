@@ -61,9 +61,6 @@ resource "helm_release" "external_secrets" {
   create_namespace = true
   version          = "2.4.1" # Match current installed version
 
-  # Explicitly enable CRD installation
-  skip_crds = false
-
   set = [
     {
       name  = "installCRDs"
@@ -72,6 +69,7 @@ resource "helm_release" "external_secrets" {
     {
       name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
       value = module.external_secrets_irsa.iam_role_arn
+      type  = "string"
     }
   ]
 

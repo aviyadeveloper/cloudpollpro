@@ -57,7 +57,48 @@ terraform apply
 
 **Configure kubectl:**
 ```bash
-aws eks update-kubeconfig --name cloudpollpro-eks --region eu-west-3
+aws eks update-kubeconfig --name cloudpollpro-cluster --region eu-west-3
+```
+
+**Deploy Kubernetes infrastructure (one-time setup):**
+```bash
+# 1. Deploy Redis (primary + replicas)
+kubectl apply -f k8s/redis/
+
+# 2. Deploy External Secrets Operator (syncs AWS Secrets Manager to K8s)
+kubectl apply -f k8s/secrets/
+
+# 3. Deploy Ingress resources (creates public ALBs)
+kubectl apply -f k8s/ingress/
+
+# Verify deployments
+kubectl get pods -n default          # Check Redis pods
+kubectl get secretstore -n default   # Check External Secrets
+kubectl get ingress -n default       # Check ALB creation
+
+# Wait for ALBs to provision (takes 2-4 minutes)
+# Check ALB status:
+aws elbv2 describe-load-balancers --region eu-west-3 \
+  --query 'LoadBalancers[?starts_with(LoadBalancerName, `k8s-default`)].{Name:LoadBalancerName,State:State.Code}' \
+  --output table
+```
+
+**Application deployment:**
+Application services (vote, result, worker) are deployed automatically via GitHub Actions CI/CD pipeline when changes are pushed to `main` branch. See [.github/workflows/build-and-deploy.yml](.github/workflows/build-and-deploy.yml).
+
+To manually deploy applications:
+```bash
+kubectl apply -R -f k8s/apps/
+```
+
+**Access the application:**
+```bash
+# Get ALB DNS names (wait 2-4 minutes after applying ingress for ALBs to become active)
+kubectl get ingress -n default
+
+# Access services in your browser:
+# Vote:   http://<vote-alb-dns>
+# Result: http://<result-alb-dns>
 ```
 
 ## Production Considerations

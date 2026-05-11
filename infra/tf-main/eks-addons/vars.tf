@@ -29,3 +29,14 @@ variable "ebs_csi_driver_version" {
   type        = string
   default     = null # Uses latest available version
 }
+
+variable "vpc_id" {
+  description = "VPC ID where the EKS cluster is deployed"
+  type        = string
+}
+
+variable "alb_controller_version" {
+  description = "Version of the AWS Load Balancer Controller Helm chart"
+  type        = string
+  default     = "1.7.1"
+}

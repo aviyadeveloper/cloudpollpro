@@ -53,6 +53,7 @@ module "eks_addons" {
   cluster_endpoint                   = module.eks.cluster_endpoint
   cluster_certificate_authority_data = module.eks.cluster_certificate_authority_data
   oidc_provider_arn                  = module.eks.oidc_provider_arn
+  vpc_id                             = module.vpc.vpc_id
 }
 
 module "rds" {

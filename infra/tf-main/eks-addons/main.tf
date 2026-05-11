@@ -48,3 +48,92 @@ resource "aws_eks_addon" "ebs_csi_driver" {
     Name    = "${var.project_name}-ebs-csi-driver"
   }
 }
+
+# ============================================================
+# AWS Load Balancer Controller
+# Purpose: Enables ALB/NLB creation from Ingress/Service resources
+# ============================================================
+
+# Download IAM policy from AWS GitHub
+data "http" "alb_controller_iam_policy" {
+  url = "https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.7.1/docs/install/iam_policy.json"
+}
+
+# Create IAM policy for Load Balancer Controller
+resource "aws_iam_policy" "alb_controller" {
+  name        = "${var.project_name}-alb-controller"
+  path        = "/"
+  description = "IAM policy for AWS Load Balancer Controller"
+  policy      = data.http.alb_controller_iam_policy.response_body
+
+  tags = {
+    Project = var.project_name
+    Name    = "${var.project_name}-alb-controller-policy"
+  }
+}
+
+# IAM role for Load Balancer Controller (IRSA)
+module "alb_controller_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.60.0"
+
+  role_name = "${var.project_name}-alb-controller"
+
+  role_policy_arns = {
+    policy = aws_iam_policy.alb_controller.arn
+  }
+
+  oidc_providers = {
+    main = {
+      provider_arn               = var.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
+    }
+  }
+
+  tags = {
+    Project = var.project_name
+    Name    = "${var.project_name}-alb-controller"
+  }
+}
+
+# Install AWS Load Balancer Controller via Helm
+resource "helm_release" "alb_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+  version    = var.alb_controller_version
+
+  set = [
+    {
+      name  = "clusterName"
+      value = var.cluster_name
+    },
+    {
+      name  = "region"
+      value = data.aws_region.current.name
+    },
+    {
+      name  = "vpcId"
+      value = var.vpc_id
+    },
+    {
+      name  = "serviceAccount.create"
+      value = "true"
+    },
+    {
+      name  = "serviceAccount.name"
+      value = "aws-load-balancer-controller"
+    },
+    {
+      name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = module.alb_controller_irsa.iam_role_arn
+      type  = "string"
+    }
+  ]
+
+  depends_on = [
+    aws_iam_policy.alb_controller,
+    module.alb_controller_irsa
+  ]
+}
