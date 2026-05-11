@@ -43,3 +43,24 @@ module "eks" {
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnets
 }
+
+module "rds" {
+  source = "./rds"
+
+  project_name               = var.project_name
+  region                     = var.region
+  vpc_id                     = module.vpc.vpc_id
+  private_subnet_ids         = module.vpc.private_subnets
+  eks_node_security_group_id = module.eks.node_security_group_id
+  bastion_security_group_id  = module.bastion.security_group_id
+
+  # Database configuration
+  database_name     = "cloudpollpro"
+  database_username = "cloudpollpro"
+
+  tags = {
+    Project   = var.project_name
+    ManagedBy = "terraform"
+  }
+}
+

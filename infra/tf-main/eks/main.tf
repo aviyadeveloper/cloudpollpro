@@ -46,7 +46,7 @@ module "eks" {
 
       min_size     = 1
       max_size     = 3
-      desired_size = 2
+      desired_size = 3
 
       subnet_ids = var.private_subnet_ids
 

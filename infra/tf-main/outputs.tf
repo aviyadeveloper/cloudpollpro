@@ -68,3 +68,47 @@ output "eks_configure_kubectl" {
   description = "Command to configure kubectl"
   value       = module.eks.configure_kubectl
 }
+
+# RDS Outputs
+output "rds_endpoint" {
+  description = "The connection endpoint for the RDS instance (host:port)"
+  value       = module.rds.db_endpoint
+}
+
+output "rds_address" {
+  description = "The hostname of the RDS instance"
+  value       = module.rds.db_address
+}
+
+output "rds_port" {
+  description = "The port the database is listening on"
+  value       = module.rds.db_port
+}
+
+output "rds_database_name" {
+  description = "The name of the database"
+  value       = module.rds.db_name
+}
+
+output "rds_username" {
+  description = "The master username for the database"
+  value       = module.rds.db_username
+  sensitive   = true
+}
+
+output "rds_credentials_secret_arn" {
+  description = "ARN of the Secrets Manager secret containing database credentials"
+  value       = module.rds.db_credentials_secret_arn
+}
+
+output "rds_credentials_secret_name" {
+  description = "Name of the Secrets Manager secret containing database credentials"
+  value       = module.rds.db_credentials_secret_name
+}
+
+output "rds_connection_command" {
+  description = "Command to connect to RDS from bastion (requires postgresql-client)"
+  value       = "psql -h ${module.rds.db_address} -U ${module.rds.db_username} -d ${module.rds.db_name}"
+  sensitive   = true
+}
+
