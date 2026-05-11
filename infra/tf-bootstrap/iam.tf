@@ -165,6 +165,9 @@ resource "aws_iam_role_policy" "iam_role_management" {
           "iam:ListPolicies",
           "iam:CreatePolicy",
           "iam:DeletePolicy",
+          "iam:CreatePolicyVersion",
+          "iam:DeletePolicyVersion",
+          "iam:SetDefaultPolicyVersion",
           "iam:TagPolicy",
           "iam:UntagPolicy",
           "iam:ListPolicyVersions"
