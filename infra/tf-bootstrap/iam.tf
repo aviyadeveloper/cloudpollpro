@@ -199,3 +199,15 @@ resource "aws_iam_role_policy" "eks_admin" {
     ]
   })
 }
+
+# RDS - Database management for PostgreSQL
+resource "aws_iam_role_policy_attachment" "rds_full_access" {
+  role       = aws_iam_role.project_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+}
+
+# Secrets Manager - For RDS credentials and application secrets
+resource "aws_iam_role_policy_attachment" "secrets_manager_full_access" {
+  role       = aws_iam_role.project_role.name
+  policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+}

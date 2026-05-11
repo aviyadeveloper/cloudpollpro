@@ -86,5 +86,6 @@ No modules.
 | <a name="output_connection_details"></a> [connection\_details](#output\_connection\_details) | Complete connection details for the bastion host |
 | <a name="output_key_name"></a> [key\_name](#output\_key\_name) | Name of the SSH key pair |
 | <a name="output_private_key_path"></a> [private\_key\_path](#output\_private\_key\_path) | Path to the private SSH key file |
+| <a name="output_security_group_id"></a> [security\_group\_id](#output\_security\_group\_id) | Security group ID of the bastion host |
 | <a name="output_ssh_command"></a> [ssh\_command](#output\_ssh\_command) | Ready-to-use SSH command to connect to bastion |
 <!-- END_TF_DOCS -->

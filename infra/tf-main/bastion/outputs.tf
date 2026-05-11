@@ -32,3 +32,9 @@ output "connection_details" {
     ssh_command      = "ssh -t -i ${local_file.private_key.filename} ubuntu@${aws_eip.bastion_eip.public_ip}"
   }
 }
+
+output "security_group_id" {
+  description = "Security group ID of the bastion host"
+  value       = aws_security_group.bastion_sg.id
+}
+
