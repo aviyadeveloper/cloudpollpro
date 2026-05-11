@@ -3,6 +3,10 @@ name: Terraform CI
 on:
   pull_request:
     branches: [main]
+    paths:
+      - "infra/**/*.tf"
+      - "infra/**/*.tfvars"
+      - ".github/workflows/terraform.yml"
 
 permissions:
   contents: read
@@ -18,21 +22,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check for Terraform changes
-        id: check_changes
-        run: |
-          if git diff --name-only origin/main...HEAD | grep -qE '^infra/.*\.(tf|tfvars)$|^\.github/workflows/terraform\.yml$'; then
-            echo "terraform_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "terraform_changed=false" >> $GITHUB_OUTPUT
-            echo "No Terraform files changed, skipping checks"
-          fi
-
       - uses: hashicorp/setup-terraform@v3
-        if: steps.check_changes.outputs.terraform_changed == 'true'
 
       - name: Format Check
-        if: steps.check_changes.outputs.terraform_changed == 'true'
         run: |
           echo "Checking tf-bootstrap..."
           terraform -chdir=infra/tf-bootstrap fmt -check -recursive
@@ -40,13 +32,30 @@ jobs:
           terraform -chdir=infra/tf-main fmt -check -recursive
 
       - name: Validate tf-bootstrap
-        if: steps.check_changes.outputs.terraform_changed == 'true'
         run: |
           terraform -chdir=infra/tf-bootstrap init -backend=false
           terraform -chdir=infra/tf-bootstrap validate
 
       - name: Validate tf-main
-        if: steps.check_changes.outputs.terraform_changed == 'true'
         run: |
+          terraform -chdir=infra/tf-main init -backend=false
+          terraform -chdir=infra/tf-main validate
+
+  # Always-pass job that other required checks can depend on
+  terraform-gate:
+    name: Terraform Gate
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [terraform-checks]
+    steps:
+      - name: Check Terraform Status
+        run: |
+          if [[ "${{ needs.terraform-checks.result }}" == "success" ]] || [[ "${{ needs.terraform-checks.result }}" == "skipped" ]]; then
+            echo "Terraform checks passed or skipped"
+            exit 0
+          else
+            echo "Terraform checks failed"
+            exit 1
+          fi
           terraform -chdir=infra/tf-main init -backend=false
           terraform -chdir=infra/tf-main validate
