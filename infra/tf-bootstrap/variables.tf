@@ -19,12 +19,12 @@ variable "project_name" {
 variable "github_repo_owner" {
   description = "GitHub repository owner/organization (e.g., 'myorg' or 'myuser')"
   type        = string
-  default     = ""
+  default     = "aviyadeveloper"
 }
 
 variable "github_repo_name" {
   description = "GitHub repository name (e.g., 'cloudpollpro')"
   type        = string
-  default     = ""
+  default     = "cloudpollpro"
 }
 
