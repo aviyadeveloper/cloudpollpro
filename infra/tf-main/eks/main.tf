@@ -12,6 +12,23 @@ module "eks" {
   endpoint_public_access                   = true
   endpoint_private_access                  = true
 
+  # Grant GitHub Actions role cluster admin access
+  access_entries = {
+    github_actions = {
+      principal_arn = var.github_actions_role_arn
+      type          = "STANDARD"
+
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
+
   # Networking
   vpc_id     = var.vpc_id
   subnet_ids = var.private_subnet_ids

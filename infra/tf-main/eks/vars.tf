@@ -24,3 +24,8 @@ variable "public_subnet_ids" {
   type        = list(string)
   default     = []
 }
+
+variable "github_actions_role_arn" {
+  description = "IAM role ARN for GitHub Actions to access EKS"
+  type        = string
+}
