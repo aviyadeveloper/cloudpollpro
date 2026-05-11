@@ -172,6 +172,7 @@ resource "aws_iam_role_policy" "iam_role_management" {
           "arn:aws:iam::*:role/aws-service-role/*",
           "arn:aws:iam::*:instance-profile/cloudpollpro*",
           "arn:aws:iam::*:policy/cloudpollpro*",
+          "arn:aws:iam::*:policy/AmazonEKS_EBS_CSI_Policy*",
           "arn:aws:iam::*:oidc-provider/*",
           "arn:aws:iam::aws:policy/*"
         ]

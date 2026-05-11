@@ -69,6 +69,17 @@ output "eks_configure_kubectl" {
   value       = module.eks.configure_kubectl
 }
 
+# EKS Add-ons Outputs
+output "ebs_csi_driver_role_arn" {
+  description = "ARN of the IAM role used by EBS CSI driver"
+  value       = module.eks_addons.ebs_csi_driver_role_arn
+}
+
+output "ebs_csi_driver_version" {
+  description = "Version of the EBS CSI driver addon installed"
+  value       = module.eks_addons.ebs_csi_driver_addon_version
+}
+
 # RDS Outputs
 output "rds_endpoint" {
   description = "The connection endpoint for the RDS instance (host:port)"
