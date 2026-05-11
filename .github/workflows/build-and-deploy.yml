@@ -66,7 +66,7 @@ jobs:
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "✅ Pushed $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "Pushed $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   deploy:
     name: Deploy to EKS
@@ -113,19 +113,19 @@ jobs:
 
       - name: Deploy to EKS
         run: |
-          echo "📦 Applying Kubernetes manifests..."
+          echo "Applying Kubernetes manifests..."
           kubectl apply -f k8s/apps/
 
       - name: Wait for rollouts
         run: |
-          echo "⏳ Waiting for deployments to complete..."
+          echo "Waiting for deployments to complete..."
           kubectl rollout status deployment/vote --timeout=5m
           kubectl rollout status deployment/result --timeout=5m
           kubectl rollout status deployment/worker --timeout=5m
 
       - name: Verify deployments
         run: |
-          echo "✅ Deployment status:"
+          echo "Deployment status:"
           kubectl get deployments -l app in (vote,result,worker)
           kubectl get pods -l app in (vote,result,worker)
 
