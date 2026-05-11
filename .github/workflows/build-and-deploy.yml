@@ -119,8 +119,8 @@ jobs:
       - name: Verify deployments
         run: |
           echo "Deployment status:"
-          kubectl get deployments -l app in (vote,result,worker)
-          kubectl get pods -l app in (vote,result,worker)
+          kubectl get deployments -l 'app in (vote,result,worker)'
+          kubectl get pods -l 'app in (vote,result,worker)'
 
       - name: Show deployment summary
         if: always()
@@ -130,4 +130,4 @@ jobs:
           echo "- **Image Tag**: ${{ needs.build.outputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Deployments" >> $GITHUB_STEP_SUMMARY
-          kubectl get deployments -l app in (vote,result,worker) >> $GITHUB_STEP_SUMMARY || true
+          kubectl get deployments -l 'app in (vote,result,worker)' >> $GITHUB_STEP_SUMMARY || true
